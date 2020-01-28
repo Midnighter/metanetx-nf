@@ -1,2 +1,11 @@
-/results/
+# Ignore a local nextflow installation.
+nextflow
+
+# Ignore the nextflow hidden directory.
 /.nextflow/
+
+# Ignore the nextflow log files.
+/.nextflow.log*
+
+# Ignore the nextflow work directory tree.
+/work/
