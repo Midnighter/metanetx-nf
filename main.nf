@@ -93,6 +93,7 @@ process etlNamespaces {
     file "${db}" into namespaces_ch
 
     """
+    mnx-assets namespaces reset sqlite:///${db}
     mnx-assets namespaces etl sqlite:///${db} \
         ${registry} \
         ${tables['chem_prop'].head()} \
@@ -113,6 +114,7 @@ process etlCompartments {
     file "${db}" into compartments_ch
 
     """
+    mnx-assets compartments reset sqlite:///${db}
     mnx-assets compartments etl sqlite:///${db} \
         ${tables['comp_prop'].head()} \
         ${tables['comp_xref'].head()}
@@ -128,6 +130,7 @@ process etlCompounds {
     file "${db}" into compounds_ch
 
     """
+    mnx-assets compounds reset sqlite:///${db}
     mnx-assets compounds etl sqlite:///${db} \
         ${tables['chem_prop'].head()} \
         ${tables['chem_xref'].head()}
@@ -142,9 +145,10 @@ process etlReactions {
     val tables from processed_map_ch
 
     output:
-    file "${db}"
+    file "${db}" into reactions_ch
 
     """
+    mnx-assets reactions reset sqlite:///${db}
     mnx-assets reactions etl sqlite:///${db} \
         ${tables['reac_prop'].head()} \
         ${tables['reac_xref'].head()}
