@@ -21,6 +21,18 @@ MetaNetX Release: ${params.mnx_release}
  * Define workflow processes.
  * ############################################################################
  */
+
+process mnx_info {
+    publishDir "${params.outdir}/mnx-raw", mode:'link'
+
+    output:
+    path 'README.md'
+
+    """
+    mnx-sdk pull --version ${params.mnx_release} --no-compress . README.md
+    """
+}
+
 process pull_tables {
     publishDir "${params.outdir}/mnx-raw", mode:'link'
 
@@ -56,10 +68,11 @@ process transform_table {
  */
 workflow mnx_sdk {
     take:
-    names
+    table_names
 
     main:
-    names.collect() \
+    mnx_info()
+    table_names.collect() \
     | pull_tables \
     | flatten() \
     | transform_table
@@ -83,7 +96,6 @@ workflow {
         "reac_prop.tsv",
         "reac_xref.tsv",
     ]) \
-    | collect \
     | mnx_sdk
 
     emit:
