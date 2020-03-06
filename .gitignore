@@ -1,5 +1,5 @@
 # Ignore a local nextflow installation.
-nextflow
+/nextflow
 
 # Ignore the nextflow hidden directory.
 /.nextflow/
