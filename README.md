@@ -2,8 +2,7 @@
 
 Enrich the information coming from MetaNetX from additional sources.
 
-Usage
-=====
+## Usage
 
 1. Set up nextflow as [described
    here](https://www.nextflow.io/index.html#GetStarted).
@@ -17,8 +16,7 @@ Usage
     ./nextflow run https://github.com/Midnighter/metanetx-nf --email=your.name@place.earth
     ```
 
-Copyright
-=========
+## Copyright
 
 * Copyright © 2020, Moritz E. Beber.
 * Free software distributed under the [Apache Software License
