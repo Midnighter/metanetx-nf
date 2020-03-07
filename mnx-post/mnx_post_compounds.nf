@@ -91,7 +91,7 @@ process structures_etl {
 
 workflow compounds {
     take:
-    path database
+    database
 
     main:
     kegg_extract(database)

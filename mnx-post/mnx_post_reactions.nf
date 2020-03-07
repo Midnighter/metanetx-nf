@@ -184,7 +184,7 @@ process seed_load {
 
 workflow reactions {
     take:
-    path database
+    database
 
     main:
     kegg_extract(database)
