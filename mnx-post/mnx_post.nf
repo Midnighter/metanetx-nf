@@ -4,8 +4,8 @@ nextflow.preview.dsl=2
 
 params.outdir = 'results'
 
-include reactions from 'mnx_post_reactions'
-include compounds from 'mnx_post_compounds'
+include reactions from './mnx_post_reactions'
+include compounds from './mnx_post_compounds'
 
 log.info """
 ************************************************************
