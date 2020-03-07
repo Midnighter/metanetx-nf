@@ -25,7 +25,7 @@ workflow {
         "reac_prop.tsv",
         "reac_xref.tsv",
     ]) \
-    | mnx_sdk
-    | mnx_assets
+    | mnx_sdk \
+    | mnx_assets \
     | mnx_post
 }
