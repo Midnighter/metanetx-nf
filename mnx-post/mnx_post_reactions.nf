@@ -195,7 +195,11 @@ workflow reactions {
     bigg_load(kegg_load.out, bigg_transform.out)
     expasy_extract()
     expasy_transform(expasy_extract.out)
-    expasy_load(bigg_load.out, expasy_transform.names, expasy_transform.replacements)
+    expasy_load(
+        bigg_load.out,
+        expasy_transform.out.names,
+        expasy_transform.out.replacements
+    )
     seed_extract()
     seed_transform(seed_extract.out)
     seed_load(expasy_load.out, seed_transform.out)
