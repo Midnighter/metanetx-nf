@@ -192,7 +192,7 @@ workflow reactions {
     kegg_load(database, kegg_transform.out)
     bigg_extract()
     bigg_transform(bigg_extract.out)
-    bigg_load(kegg_names.out, bigg_transform.out)
+    bigg_load(kegg_load.out, bigg_transform.out)
     expasy_extract()
     expasy_transform(expasy_extract.out)
     expasy_load(bigg_load.out, expasy_transform.names, expasy_transform.replacements)

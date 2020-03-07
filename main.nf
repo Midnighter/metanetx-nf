@@ -6,7 +6,7 @@ include mnx_sdk from './mnx-sdk/mnx_sdk'
 include mnx_assets from './mnx-assets/mnx_assets'
 include mnx_post from './mnx-post/mnx_post'
 
-log.info"""
+log.info """
 ************************************************************
 
 metanetx-nf
