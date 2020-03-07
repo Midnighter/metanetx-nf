@@ -100,7 +100,7 @@ workflow compounds {
     structures_etl(kegg_load.out.db)
 
     emit:
-    db = kegg_load.out
+    db = structures_etl.out
 }
 
 /* ############################################################################

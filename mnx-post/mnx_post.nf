@@ -61,7 +61,7 @@ workflow mnx_post {
     compounds(reactions.out)
 
     emit:
-    db = compounds.out
+    db = compounds.out.db
 }
 
 /* ############################################################################
