@@ -29,14 +29,11 @@ Permanent Cache: ${params.storage}
 process kegg_extract {
     storeDir "${params.storage}"
 
-    input:
-    path db
-
     output:
     path 'kegg_compounds.json'
 
     """
-    mnx-post compounds kegg extract sqlite:///${db}
+    mnx-post compounds kegg extract
     """
 }
 
@@ -94,7 +91,7 @@ workflow compounds {
     database
 
     main:
-    kegg_extract(database)
+    kegg_extract()
     kegg_transform(kegg_extract.out)
     kegg_load(database, kegg_transform.out)
     structures_etl(kegg_load.out.db)

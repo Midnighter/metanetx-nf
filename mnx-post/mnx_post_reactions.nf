@@ -102,14 +102,11 @@ process expasy_load {
 process kegg_extract {
     storeDir "${params.storage}"
 
-    input:
-    path db
-
     output:
     path 'kegg_reactions.json'
 
     """
-    mnx-post reactions kegg extract sqlite:///${db}
+    mnx-post reactions kegg extract
     """
 }
 
@@ -187,12 +184,9 @@ workflow reactions {
     database
 
     main:
-    kegg_extract(database)
-    kegg_transform(kegg_extract.out)
-    kegg_load(database, kegg_transform.out)
     bigg_extract()
     bigg_transform(bigg_extract.out)
-    bigg_load(kegg_load.out, bigg_transform.out)
+    bigg_load(database, bigg_transform.out)
     expasy_extract()
     expasy_transform(expasy_extract.out)
     expasy_load(
@@ -200,9 +194,12 @@ workflow reactions {
         expasy_transform.out.names,
         expasy_transform.out.replacements
     )
+    kegg_extract()
+    kegg_transform(kegg_extract.out)
+    kegg_load(expasy_load.out, kegg_transform.out)
     seed_extract()
     seed_transform(seed_extract.out)
-    seed_load(expasy_load.out, seed_transform.out)
+    seed_load(kegg_load.out, seed_transform.out)
 
     emit:
     db = seed_load.out
