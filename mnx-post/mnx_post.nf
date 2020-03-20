@@ -3,6 +3,7 @@
 nextflow.preview.dsl=2
 
 params.outdir = 'results'
+params.pubchem_identifiers = 'input/compound_additions.csv'
 
 include reactions from './mnx_post_reactions'
 include compounds from './mnx_post_compounds'
@@ -12,6 +13,7 @@ log.info """
 
 metanetx-post
 =============
+PubChem Identifiers: ${params.pubchem_identifiers}
 Results Path: ${params.outdir}
 
 ************************************************************
