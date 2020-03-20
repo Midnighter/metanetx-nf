@@ -17,6 +17,7 @@ metanetx-nf
 """
 
 workflow {
+    pubchem_identifiers = Channel.fromPath("${params.pubchem_identifiers}")
     Channel.fromList([
         "chem_prop.tsv",
         "chem_xref.tsv",
@@ -26,6 +27,6 @@ workflow {
         "reac_xref.tsv",
     ]) \
     | mnx_sdk \
-    | mnx_assets \
-    | mnx_post
+    | mnx_assets
+    mnx_post(mnx_assets.out.db, pubchem_identifiers)
 }

@@ -53,12 +53,13 @@ process kegg_info {
 workflow mnx_post {
     take:
     database
+    pubchem_identifiers
 
     main:
     bigg_info()
     kegg_info()
     reactions(database)
-    compounds(reactions.out)
+    compounds(reactions.out, pubchem_identifiers)
 
     emit:
     db = compounds.out.db
@@ -72,6 +73,7 @@ workflow mnx_post {
 
 workflow {
     main:
-    Channel.fromPath("${params.outdir}/${params.database}") \
-    | mnx_assets
+    db = Channel.fromPath("${params.outdir}/${params.database}")
+    pubchem_identifiers = Channel.fromPath("${params.pubchem_identifiers}")
+    mnx_post(db, pubchem_identifiers)
 }
