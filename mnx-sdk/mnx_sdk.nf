@@ -6,19 +6,6 @@ params.mnx_release = '3.2'
 params.outdir = 'results'
 params.storage = 'storage'
 
-log.info """
-************************************************************
-
-metanetx-sdk
-============
-MetaNetX Release: ${params.mnx_release}
-Results Path: ${params.outdir}
-Permanent Cache: ${params.storage}
-
-************************************************************
-
-"""
-
 /* ############################################################################
  * Define workflow processes.
  * ############################################################################
@@ -91,6 +78,19 @@ workflow mnx_sdk {
  */
 
 workflow {
+    log.info """
+************************************************************
+
+metanetx-sdk
+============
+MetaNetX Release: ${params.mnx_release}
+Results Path: ${params.outdir}
+Permanent Cache: ${params.storage}
+
+************************************************************
+
+"""
+
     main:
     Channel.fromList([
         "chem_prop.tsv",

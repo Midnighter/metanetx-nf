@@ -6,19 +6,6 @@ params.database = 'metanetx.sqlite'
 params.outdir = 'results'
 params.storage = 'storage'
 
-log.info """
-************************************************************
-
-metanetx-post-reactions
-=======================
-SQLite Database: ${params.database}
-Results Path: ${params.outdir}
-Permanent Cache: ${params.storage}
-
-************************************************************
-
-"""
-
 /* ############################################################################
  * Define workflow processes.
  * ############################################################################
@@ -212,6 +199,19 @@ workflow reactions {
  */
 
 workflow {
+    log.info """
+************************************************************
+
+metanetx-post-reactions
+=======================
+SQLite Database: ${params.database}
+Results Path: ${params.outdir}
+Permanent Cache: ${params.storage}
+
+************************************************************
+
+"""
+
     main:
     Channel.fromPath("${params.outdir}/${params.database}") \
     | reactions

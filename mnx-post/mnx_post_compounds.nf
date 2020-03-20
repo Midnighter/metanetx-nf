@@ -8,21 +8,6 @@ params.database = 'metanetx.sqlite'
 params.outdir = 'results'
 params.storage = 'storage'
 
-log.info """
-************************************************************
-
-metanetx-post-compounds
-=======================
-PubChem Identifiers: ${params.pubchem_identifiers}
-Chem-Informatics Backend: ${params.chem_backend}
-SQLite Database: ${params.database}
-Results Path: ${params.outdir}
-Permanent Cache: ${params.storage}
-
-************************************************************
-
-"""
-
 /* ############################################################################
  * Define workflow processes.
  * ############################################################################
@@ -156,8 +141,23 @@ workflow compounds {
  */
 
 workflow {
+    log.info """
+************************************************************
+
+metanetx-post-compounds
+=======================
+PubChem Identifiers: ${params.pubchem_identifiers}
+Chem-Informatics Backend: ${params.chem_backend}
+SQLite Database: ${params.database}
+Results Path: ${params.outdir}
+Permanent Cache: ${params.storage}
+
+************************************************************
+
+"""
+
     main:
     db = Channel.fromPath("${params.outdir}/${params.database}")
-    pubchem_identifiers = Channel.fromPath("${params.pubchem_identifiers}")
+    pubchem_identifiers = Channel.fromPath("${params.pubchem_identifiers}", checkIfExists: true)
     compounds(db, pubchem_identifiers)
 }

@@ -8,18 +8,6 @@ params.pubchem_identifiers = 'input/compound_additions.csv'
 include reactions from './mnx_post_reactions'
 include compounds from './mnx_post_compounds'
 
-log.info """
-************************************************************
-
-metanetx-post
-=============
-PubChem Identifiers: ${params.pubchem_identifiers}
-Results Path: ${params.outdir}
-
-************************************************************
-
-"""
-
 /* ############################################################################
  * Define workflow processes.
  * ############################################################################
@@ -74,8 +62,20 @@ workflow mnx_post {
  */
 
 workflow {
+    log.info """
+************************************************************
+
+metanetx-post
+=============
+PubChem Identifiers: ${params.pubchem_identifiers}
+Results Path: ${params.outdir}
+
+************************************************************
+
+"""
+
     main:
     db = Channel.fromPath("${params.outdir}/${params.database}")
-    pubchem_identifiers = Channel.fromPath("${params.pubchem_identifiers}")
+    pubchem_identifiers = Channel.fromPath("${params.pubchem_identifiers}", checkIfExists: true)
     mnx_post(db, pubchem_identifiers)
 }

@@ -6,19 +6,6 @@ params.database = 'metanetx.sqlite'
 params.outdir = 'results'
 params.storage = 'storage'
 
-log.info """
-************************************************************
-
-metanetx-assets
-===============
-Database URI: ${params.database}
-Results Path: ${params.outdir}
-Permanent Cache: ${params.storage}
-
-************************************************************
-
-"""
-
 /* ############################################################################
  * Define workflow processes.
  * ############################################################################
@@ -151,6 +138,19 @@ workflow mnx_assets {
  */
 
 workflow {
+    log.info """
+************************************************************
+
+metanetx-assets
+===============
+Database URI: ${params.database}
+Results Path: ${params.outdir}
+Permanent Cache: ${params.storage}
+
+************************************************************
+
+"""
+
     main:
     Channel.fromPath("${params.outdir}/mnx-processed/processed_*.tsv.gz") \
     | mnx_assets
