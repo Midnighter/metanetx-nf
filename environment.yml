@@ -6,113 +6,93 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=0_gnu
-  - aioftp=0.13.0=py_0
-  - appdirs=1.4.3=py_1
-  - attrs=19.3.0=py_0
-  - backcall=0.1.0=py_0
-  - black=19.10b0=py38_0
+  - aioftp=0.16.0=py_0
   - boost=1.72.0=py38h9de70de_0
   - boost-cpp=1.72.0=h8e57a91_0
   - brotlipy=0.7.0=py38h516909a_1000
   - bzip2=1.0.8=h516909a_2
   - ca-certificates=2019.11.28=hecc5488_0
-  - cairo=1.16.0=hfb77d84_1002
-  - certifi=2019.11.28=py38_0
+  - cairo=1.16.0=hcf35c78_1003
+  - certifi=2019.11.28=py38h32f6830_1
   - cffi=1.14.0=py38hd463f26_0
-  - chardet=3.0.4=py38_1003
-  - click=7.0=py_0
+  - chardet=3.0.4=py38h32f6830_1006
+  - click=7.1.1=pyh8c360ce_0
   - click-log=0.3.2=py_0
   - cobra-component-models=0.3.2=py_0
-  - cryptography=2.8=py38h72c5cf5_1
-  - decorator=4.4.2=py_0
+  - cryptography=2.8=py38h766eaa4_2
   - depinfo=1.5.3=py_0
   - fontconfig=2.13.1=h86ecdb6_1001
-  - freetype=2.10.0=he983fc9_1
+  - freetype=2.10.1=he06d7ca_0
   - gettext=0.19.8.1=hc5be6a0_1002
-  - glib=2.58.3=py38h6f030ca_1002
+  - glib=2.58.3=py38h73cb85d_1003
   - h11=0.9.0=py_0
-  - h2=3.2.0=py38_0
+  - h2=3.2.0=py38h32f6830_1
   - hpack=3.0.0=py_0
-  - hstspreload=2020.3.4=py_0
+  - hstspreload=2020.3.17=py_0
   - html5lib=1.0.1=py_0
-  - httpx=0.11.1=py_0
+  - httpx=0.12.0=py_0
   - hyperframe=5.2.0=py_0
   - icu=64.2=he1b5a44_1
   - idna=2.9=py_1
-  - ipython=7.13.0=py38h5ca1d4c_0
-  - ipython_genutils=0.2.0=py_1
   - isodate=0.6.0=py_1
-  - isort=4.3.21=py38_0
-  - jedi=0.16.0=py38_0
   - jpeg=9c=h14c3975_1001
   - keepalive=0.5=py_1
-  - ld_impl_linux-64=2.33.1=h53a641e_8
+  - ld_impl_linux-64=2.34=h53a641e_0
   - libblas=3.8.0=14_openblas
   - libcblas=3.8.0=14_openblas
-  - libffi=3.2.1=he1b5a44_1006
+  - libffi=3.2.1=he1b5a44_1007
   - libgcc-ng=9.2.0=h24d8f2e_2
   - libgfortran-ng=7.3.0=hdf63c60_5
   - libgomp=9.2.0=h24d8f2e_2
-  - libiconv=1.15=h516909a_1005
+  - libiconv=1.15=h516909a_1006
   - liblapack=3.8.0=14_openblas
   - libopenblas=0.3.7=h5ec1e0e_6
-  - libpng=1.6.37=hed695b0_0
+  - libpng=1.6.37=hed695b0_1
   - libstdcxx-ng=9.2.0=hdf63c60_2
-  - libtiff=4.1.0=hc3755c2_3
+  - libtiff=4.1.0=hc7e4089_6
   - libuuid=2.32.1=h14c3975_1000
+  - libwebp-base=1.1.0=2
   - libxcb=1.13=h14c3975_1002
   - libxml2=2.9.10=hee79883_0
   - lz4-c=1.8.3=he1b5a44_1001
   - metanetx-assets=0.1.6=py_0
+  - metanetx-post=0.3.0=py_0
   - metanetx-sdk=0.4.3=py_0
-  - mypy_extensions=0.4.3=py38_0
   - ncurses=6.1=hf484d3e_1002
   - numpy=1.18.1=py38h95a1406_0
   - olefile=0.46=py_0
-  - openssl=1.1.1d=h516909a_0
-  - pandas=1.0.1=py38hb3f55d8_0
-  - parso=0.6.2=py_0
-  - pathspec=0.7.0=py_0
+  - openssl=1.1.1e=h516909a_0
+  - pandas=1.0.3=py38hcb8c335_0
   - pcre=8.44=he1b5a44_0
-  - pexpect=4.8.0=py38_0
-  - pickleshare=0.7.5=py38_1000
-  - pillow=7.0.0=py38hefe7db6_0
+  - pillow=7.0.0=py38h9776b28_1
   - pip=20.0.2=py_2
   - pipdeptree=0.13.2=py_0
   - pixman=0.38.0=h516909a_1003
-  - prompt-toolkit=3.0.4=py_0
-  - prompt_toolkit=3.0.4=0
   - pthread-stubs=0.4=h14c3975_1001
-  - ptyprocess=0.6.0=py_1001
-  - pycairo=1.19.1=py38h438ddbb_0
+  - pycairo=1.19.1=py38h323dad1_3
   - pycparser=2.20=py_0
   - pydantic=1.4=py38h516909a_0
-  - pygments=2.5.2=py_0
   - pyopenssl=19.1.0=py_1
   - pyparsing=2.4.6=py_0
-  - pysocks=1.7.1=py38_0
+  - pysocks=1.7.1=py38h32f6830_1
   - python=3.8.2=h9d8adfe_4_cpython
   - python-dateutil=2.8.1=py_0
+  - python_abi=3.8=1_cp38
   - pytz=2019.3=py_0
   - rdflib=4.2.2=py38_1000
   - rdkit=2019.09.3=py38he9dd633_1
   - readline=8.0=hf8c457e_0
-  - regex=2020.2.20=py38h516909a_0
   - rfc3986=1.3.2=py_0
-  - setuptools=45.2.0=py38_0
-  - six=1.14.0=py38_0
-  - sniffio=1.1.0=py38_1
+  - setuptools=46.0.0=py38h32f6830_2
+  - six=1.14.0=py_1
+  - sniffio=1.1.0=py38h32f6830_2
   - sparqlwrapper=1.8.2=py38_1000
-  - sqlalchemy=1.3.13=py38h516909a_0
+  - sqlalchemy=1.3.15=py38h1e0a361_1
   - sqlite=3.30.1=hcee41ef_0
   - tk=8.6.10=hed695b0_0
   - toml=0.10.0=py_0
   - tqdm=4.43.0=py_0
-  - traitlets=4.3.3=py38_0
-  - typed-ast=1.4.1=py38h516909a_0
-  - typing_extensions=3.7.4.1=py38_0
-  - urllib3=1.25.7=py38_0
-  - wcwidth=0.1.8=py_0
+  - urllib3=1.25.7=py38h32f6830_1
   - webencodings=0.5.1=py_1
   - wheel=0.34.2=py_1
   - xorg-kbproto=1.0.7=h14c3975_1002
@@ -128,8 +108,5 @@ dependencies:
   - xorg-xproto=7.0.31=h14c3975_1007
   - xz=5.2.4=h14c3975_1001
   - zlib=1.2.11=h516909a_1006
-  - zstd=1.4.4=h3b9ef0a_1
-  - pip:
-    - metanetx-post==0.1.0
-prefix: ~/.local/share/miniconda3/envs/mnx
+  - zstd=1.4.4=h3b9ef0a_2
 
