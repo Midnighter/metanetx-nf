@@ -40,8 +40,9 @@ process etl_namespaces {
     output:
     path db
 
+    // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    mnx-assets namespaces reset sqlite:///${db}
+    cp --remove-destination "$(realpath -e ${db})" "${db}"
     mnx-assets namespaces etl sqlite:///${db} \
         ${registry} \
         ${tables['chem_prop'].head()} \
@@ -61,8 +62,9 @@ process etl_compartments {
     output:
     path db
 
+    // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    mnx-assets compartments reset sqlite:///${db}
+    cp --remove-destination "$(realpath -e ${db})" "${db}"
     mnx-assets compartments etl sqlite:///${db} \
         ${tables['comp_prop'].head()} \
         ${tables['comp_xref'].head()}
@@ -77,8 +79,9 @@ process etl_compounds {
     output:
     path db
 
+    // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    mnx-assets compounds reset sqlite:///${db}
+    cp --remove-destination "$(realpath -e ${db})" "${db}"
     mnx-assets compounds etl sqlite:///${db} \
         ${tables['chem_prop'].head()} \
         ${tables['chem_xref'].head()}
@@ -95,8 +98,9 @@ process etl_reactions {
     output:
     path db
 
+    // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    mnx-assets reactions reset sqlite:///${db}
+    cp --remove-destination "$(realpath -e ${db})" "${db}"
     mnx-assets reactions etl sqlite:///${db} \
         ${tables['reac_prop'].head()} \
         ${tables['reac_xref'].head()}

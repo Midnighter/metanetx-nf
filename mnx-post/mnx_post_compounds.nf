@@ -47,7 +47,9 @@ process kegg_load {
     path db, emit: db
     path 'kegg_inchi_conflicts.json'
 
+    // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
+    cp --remove-destination "$(realpath -e ${db})" "${db}"
     mnx-post compounds kegg load sqlite:///${db} ${inchis}
     """
 }
@@ -90,7 +92,9 @@ process pubchem_load {
     output:
     path db, emit: db
 
+    // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
+    cp --remove-destination "$(realpath -e ${db})" "${db}"
     mnx-post compounds pubchem load sqlite:///${db} ${compounds}
     """
 }
@@ -104,7 +108,9 @@ process structures_etl {
     output:
     path db
 
+    // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
+    cp --remove-destination "$(realpath -e ${db})" "${db}"
     mnx-post compounds structures etl --backend=${params.chem_backend} \
         sqlite:///${db}
     """
