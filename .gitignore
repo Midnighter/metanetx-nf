@@ -9,3 +9,6 @@
 
 # Ignore the nextflow work directory tree.
 /work/
+/info/
+/storage/
+/results/
