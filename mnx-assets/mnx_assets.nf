@@ -24,7 +24,7 @@ process pull_registry {
 
 process init_db {
     output:
-    path "${params.database}"
+    path "${params.database}", emit: db
 
     """
     mnx-assets init --drop yes sqlite:///${params.database}
@@ -38,12 +38,12 @@ process etl_namespaces {
     path registry
 
     output:
-    path db
+    path "${db.getName()}", emit: db
 
     // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    cp --remove-destination "$(realpath -e ${db})" "${db}"
-    mnx-assets namespaces etl sqlite:///${db} \
+    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
+    mnx-assets namespaces etl sqlite:///${db.getName()} \
         ${registry} \
         ${tables['chem_prop'].head()} \
         ${tables['chem_xref'].head()} \
@@ -60,12 +60,12 @@ process etl_compartments {
     val tables
 
     output:
-    path db
+    path "${db.getName()}", emit: db
 
     // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    cp --remove-destination "$(realpath -e ${db})" "${db}"
-    mnx-assets compartments etl sqlite:///${db} \
+    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
+    mnx-assets compartments etl sqlite:///${db.getName()} \
         ${tables['comp_prop'].head()} \
         ${tables['comp_xref'].head()}
     """
@@ -77,12 +77,12 @@ process etl_compounds {
     val tables
 
     output:
-    path db
+    path "${db.getName()}", emit: db
 
     // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    cp --remove-destination "$(realpath -e ${db})" "${db}"
-    mnx-assets compounds etl sqlite:///${db} \
+    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
+    mnx-assets compounds etl sqlite:///${db.getName()} \
         ${tables['chem_prop'].head()} \
         ${tables['chem_xref'].head()}
     """
@@ -96,12 +96,12 @@ process etl_reactions {
     val tables
 
     output:
-    path db
+    path "${db.getName()}", emit: db
 
     // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    cp --remove-destination "$(realpath -e ${db})" "${db}"
-    mnx-assets reactions etl sqlite:///${db} \
+    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
+    mnx-assets reactions etl sqlite:///${db.getName()} \
         ${tables['reac_prop'].head()} \
         ${tables['reac_xref'].head()}
     """

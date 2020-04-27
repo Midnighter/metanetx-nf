@@ -40,10 +40,11 @@ process bigg_load {
     path reaction_names
 
     output:
-    path db
+    path "${db.getName()}", emit: db
 
     """
-    mnx-post reactions bigg load sqlite:///${db} ${reaction_names}
+    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
+    mnx-post reactions bigg load sqlite:///${db.getName()} ${reaction_names}
     """
 }
 
@@ -78,10 +79,11 @@ process expasy_load {
     path enzyme_replacements
 
     output:
-    path db
+    path "${db.getName()}", emit: db
 
     """
-    mnx-post reactions expasy load sqlite:///${db} \
+    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
+    mnx-post reactions expasy load sqlite:///${db.getName()} \
         ${enzyme_names} ${enzyme_replacements}
     """
 }
@@ -115,10 +117,11 @@ process kegg_load {
     path reaction_names
 
     output:
-    path db
+    path "${db.getName()}", emit: db
 
     """
-    mnx-post reactions kegg load sqlite:///${db} ${reaction_names}
+    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
+    mnx-post reactions kegg load sqlite:///${db.getName()} ${reaction_names}
     """
 }
 
@@ -153,10 +156,11 @@ process seed_load {
     path reaction_names
 
     output:
-    path db
+    path "${db.getName()}", emit: db
 
     """
-    mnx-post reactions seed load sqlite:///${db} ${reaction_names}
+    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
+    mnx-post reactions seed load sqlite:///${db.getName()} ${reaction_names}
     """
 }
 
