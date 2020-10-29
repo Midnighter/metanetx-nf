@@ -1,8 +1,13 @@
 #!/usr/bin/env nextflow
 
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
 
-params.mnx_release = '3.2'
+/* ############################################################################
+ * Default parameter values.
+ * ############################################################################
+ */
+
+params.mnx_release = '4.1'
 params.outdir = 'results'
 params.storage = 'storage'
 
@@ -11,8 +16,8 @@ params.storage = 'storage'
  * ############################################################################
  */
 
-process mnx_info {
-    publishDir "${params.outdir}", mode:'link'
+process MNX_INFO {
+    publishDir params.outdir, mode: 'link'
 
     output:
     path 'README.md'
@@ -22,32 +27,38 @@ process mnx_info {
     """
 }
 
-process pull_tables {
-    storeDir "${params.storage}"
+process PULL_TABLE {
+    storeDir params.storage
+    errorStrategy 'retry'
+    maxRetries 3
 
     input:
-    val names
+    val name
 
     output:
-    path '*.tsv.gz'
+    path result, emit: table
 
+    script:
+    result = "${name}.gz"
     """
-    mnx-sdk pull --version ${params.mnx_release} . ${names.join(' ')}
+    mnx-sdk pull --version ${params.mnx_release} . ${name}
     """
 }
 
-process transform_table {
-    publishDir "${params.outdir}/mnx-processed", mode:'link'
+process TRANSFORM_TABLE {
+    publishDir "${params.outdir}/mnx-processed", mode: 'link'
 
     input:
     path table
 
     output:
-    path "processed_${table}", emit: processed_table
+    path result, emit: processed_table
 
+    script:
+    command = table.getSimpleName().replace('_', '-')
+    result = "processed_${table}"
     """
-    mnx-sdk etl ${table.getSimpleName().replace('_', '-')} \
-        ${table} processed_${table}
+    mnx-sdk etl ${command} ${table} ${result}
     """
 }
 
@@ -61,14 +72,11 @@ workflow mnx_sdk {
     table_names
 
     main:
-    mnx_info()
-    table_names.collect() \
-    | pull_tables \
-    | flatten() \
-    | transform_table
+    MNX_INFO()
+    PULL_TABLE(table_names) | TRANSFORM_TABLE
 
     emit:
-    tables = transform_table.out.processed_table
+    table = TRANSFORM_TABLE.out.processed_table
 }
 
 /* ############################################################################
@@ -93,10 +101,13 @@ Permanent Cache: ${params.storage}
 
     main:
     Channel.fromList([
+        "chem_depr.tsv",
         "chem_prop.tsv",
         "chem_xref.tsv",
+        "comp_depr.tsv",
         "comp_prop.tsv",
         "comp_xref.tsv",
+        "reac_depr.tsv",
         "reac_prop.tsv",
         "reac_xref.tsv",
     ]) \
