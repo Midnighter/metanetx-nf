@@ -135,7 +135,7 @@ process ETL_REACTIONS {
  * ############################################################################
  */
 
-workflow mnx_assets {
+workflow MNX_ASSETS {
     take:
     processed_tables
 
@@ -182,5 +182,5 @@ Permanent Cache: ${params.storage}
 
     main:
     Channel.fromPath("${params.outdir}/mnx-processed/processed_*.tsv.gz") \
-    | mnx_assets
+    | MNX_ASSETS
 }
