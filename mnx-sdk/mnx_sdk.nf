@@ -67,7 +67,7 @@ process TRANSFORM_TABLE {
  * ############################################################################
  */
 
-workflow mnx_sdk {
+workflow MNX_SDK {
     take:
     table_names
 
@@ -111,5 +111,5 @@ Permanent Cache: ${params.storage}
         "reac_prop.tsv",
         "reac_xref.tsv",
     ]) \
-    | mnx_sdk
+    | MNX_SDK
 }
