@@ -1,6 +1,11 @@
 #!/usr/bin/env nextflow
 
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
+
+/* ############################################################################
+ * Default parameter values.
+ * ############################################################################
+ */
 
 params.database = 'metanetx.sqlite'
 params.outdir = 'results'
@@ -11,99 +16,117 @@ params.storage = 'storage'
  * ############################################################################
  */
 
-process pull_registry {
-    storeDir "${params.storage}"
+process PULL_REGISTRY {
+    storeDir params.storage
+    errorStrategy 'retry'
+    maxRetries 3
 
     output:
-    path 'identifiers_org.json'
+    path result, emit: registry
 
+    script:
+    result = 'identifiers_org.json'
     """
-    mnx-assets namespaces extract-registry identifiers_org.json
+    mnx-assets namespaces extract-registry ${result}
     """
 }
 
-process init_db {
+process INIT_DB {
+    input:
+    val database
+
     output:
-    path "${params.database}", emit: db
+    path database, emit: db
 
     """
-    mnx-assets init --drop yes sqlite:///${params.database}
+    mnx-assets init --drop yes "sqlite:///${database}"
     """
 }
 
-process etl_namespaces {
+process ETL_NAMESPACES {
     input:
     path db
     val tables
     path registry
 
     output:
-    path "${db.getName()}", emit: db
+    path result, emit: db
 
+    script:
+    result = db.getName()
     // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
-    mnx-assets namespaces etl sqlite:///${db.getName()} \
+    cp --remove-destination "\$(realpath -e ${db})" "${result}"
+    mnx-assets namespaces etl "sqlite:///${result}" \
         ${registry} \
-        ${tables['chem_prop'].head()} \
-        ${tables['chem_xref'].head()} \
-        ${tables['comp_prop'].head()} \
-        ${tables['comp_xref'].head()} \
-        ${tables['reac_prop'].head()} \
-        ${tables['reac_xref'].head()}
+        ${tables['chem_prop']} \
+        ${tables['chem_xref']} \
+        ${tables['comp_prop']} \
+        ${tables['comp_xref']} \
+        ${tables['reac_prop']} \
+        ${tables['reac_xref']}
     """
 }
 
-process etl_compartments {
+process ETL_COMPARTMENTS {
     input:
     path db
     val tables
 
     output:
-    path "${db.getName()}", emit: db
+    path result, emit: db
 
+    script:
+    result = db.getName()
     // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
-    mnx-assets compartments etl sqlite:///${db.getName()} \
-        ${tables['comp_prop'].head()} \
-        ${tables['comp_xref'].head()}
+    cp --remove-destination "\$(realpath -e ${db})" "${result}"
+    mnx-assets compartments etl "sqlite:///${result}" \
+        ${tables['comp_prop']} \
+        ${tables['comp_xref']} \
+        ${tables['comp_depr']}
     """
 }
 
-process etl_compounds {
+process ETL_COMPOUNDS {
     input:
     path db
     val tables
 
     output:
-    path "${db.getName()}", emit: db
+    path result, emit: db
 
+    script:
+    result = db.getName()
     // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
-    mnx-assets compounds etl sqlite:///${db.getName()} \
-        ${tables['chem_prop'].head()} \
-        ${tables['chem_xref'].head()}
+    cp --remove-destination "\$(realpath -e ${db})" "${result}"
+    mnx-assets compounds etl "sqlite:///${result}" \
+        ${tables['chem_prop']} \
+        ${tables['chem_xref']} \
+        ${tables['chem_depr']}
     """
 }
 
-process etl_reactions {
-    publishDir "${params.outdir}", mode:'link'
+process ETL_REACTIONS {
+    publishDir params.outdir, mode:'link'
 
     input:
     path db
     val tables
 
     output:
-    path "${db.getName()}", emit: db
+    path result, emit: db
 
+    script:
+    result = db.getName()
     // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
-    mnx-assets reactions etl sqlite:///${db.getName()} \
-        ${tables['reac_prop'].head()} \
-        ${tables['reac_xref'].head()}
+    cp --remove-destination "\$(realpath -e ${db})" "${result}"
+    mnx-assets reactions etl "sqlite:///${result}" \
+        ${tables['reac_prop']} \
+        ${tables['reac_xref']} \
+        ${tables['reac_depr']}
     """
 }
 
@@ -117,22 +140,24 @@ workflow mnx_assets {
     processed_tables
 
     main:
-    pull_registry()
-    init_db()
-    grouped_tables = processed_tables.groupBy({ file ->
-        file.getSimpleName().minus('processed_')
-    })
-    etl_namespaces(
-        init_db.out,
+    PULL_REGISTRY()
+    INIT_DB(params.database)
+
+    grouped_tables = processed_tables
+        .reduce( [:] ) { map, file ->
+         map[file.getSimpleName().minus('processed_')] = file; return map }
+
+    ETL_NAMESPACES(
+        INIT_DB.out.db,
         grouped_tables,
-        pull_registry.out
+        PULL_REGISTRY.out.registry
     )
-    etl_compartments(etl_namespaces.out, grouped_tables)
-    etl_compounds(etl_compartments.out, grouped_tables)
-    etl_reactions(etl_compounds.out, grouped_tables)
+    ETL_COMPARTMENTS(ETL_NAMESPACES.out.db, grouped_tables)
+    ETL_COMPOUNDS(ETL_COMPARTMENTS.out.db, grouped_tables)
+    ETL_REACTIONS(ETL_COMPOUNDS.out.db, grouped_tables)
 
     emit:
-    db = etl_reactions.out
+    db = ETL_REACTIONS.out.db
 }
 
 /* ############################################################################
