@@ -1,17 +1,16 @@
 #!/usr/bin/env nextflow
 
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
 
-params.mnx_release = '3.2'
+params.mnx_release = '4.2'
 params.outdir = 'results'
-params.storage = 'storage'
 
 /* ############################################################################
  * Define workflow processes.
  * ############################################################################
  */
 
-process mnx_info {
+process MNX_INFO {
     publishDir "${params.outdir}", mode:'link'
 
     output:
@@ -22,8 +21,8 @@ process mnx_info {
     """
 }
 
-process pull_tables {
-    storeDir "${params.storage}"
+process PULL_TABLES {
+    publishDir "${params.outdir}/mnx-${params.mnx_release}", mode:'link'
 
     input:
     val names
@@ -36,8 +35,8 @@ process pull_tables {
     """
 }
 
-process transform_table {
-    publishDir "${params.outdir}/mnx-processed", mode:'link'
+process TRANSFORM_TABLE {
+    publishDir "${params.outdir}/mnx-${params.mnx_release}-processed", mode:'link'
 
     input:
     path table
@@ -47,7 +46,7 @@ process transform_table {
 
     """
     mnx-sdk etl ${table.getSimpleName().replace('_', '-')} \
-        ${table} processed_${table}
+        "${table}" "processed_${table}"
     """
 }
 
@@ -61,14 +60,10 @@ workflow mnx_sdk {
     table_names
 
     main:
-    mnx_info()
-    table_names.collect() \
-    | pull_tables \
-    | flatten() \
-    | transform_table
+    TRANSFORM_TABLE(table_names)
 
     emit:
-    tables = transform_table.out.processed_table
+    tables = TRANSFORM_TABLE.out.processed_table
 }
 
 /* ############################################################################
@@ -85,7 +80,6 @@ metanetx-sdk
 ============
 MetaNetX Release: ${params.mnx_release}
 Results Path: ${params.outdir}
-Permanent Cache: ${params.storage}
 
 ************************************************************
 
@@ -95,10 +89,15 @@ Permanent Cache: ${params.storage}
     Channel.fromList([
         "chem_prop.tsv",
         "chem_xref.tsv",
+        "chem_depr.tsv",
         "comp_prop.tsv",
         "comp_xref.tsv",
+        "comp_depr.tsv",
         "reac_prop.tsv",
         "reac_xref.tsv",
+        "reac_depr.tsv",
     ]) \
-    | mnx_sdk
+    mnx_info()
+    table_names.collect() \
+    | pull_tables
 }
