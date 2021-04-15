@@ -1,19 +1,20 @@
 #!/usr/bin/env nextflow
 
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
 
+params.database = 'metanetx.sqlite'
 params.outdir = 'results'
 params.pubchem_identifiers = 'input/compound_additions.csv'
 
-include reactions from './mnx_post_reactions'
-include compounds from './mnx_post_compounds'
+include { reactions } from './mnx_post_reactions'
+include { compounds } from './mnx_post_compounds'
 
 /* ############################################################################
  * Define workflow processes.
  * ############################################################################
  */
 
-process bigg_info {
+process BIGG_INFO {
     publishDir "${params.outdir}", mode:'link'
 
     output:
@@ -24,7 +25,7 @@ process bigg_info {
     """
 }
 
-process kegg_info {
+process KEGG_INFO {
     publishDir "${params.outdir}", mode:'link'
 
     output:
@@ -46,8 +47,8 @@ workflow mnx_post {
     pubchem_identifiers
 
     main:
-    bigg_info()
-    kegg_info()
+    BIGG_INFO()
+    KEGG_INFO()
     reactions(database)
     compounds(reactions.out, pubchem_identifiers)
 
@@ -67,6 +68,7 @@ workflow {
 
 metanetx-post
 =============
+SQLite Database: ${params.database}
 PubChem Identifiers: ${params.pubchem_identifiers}
 Results Path: ${params.outdir}
 
