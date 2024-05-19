@@ -1,20 +1,34 @@
 #!/usr/bin/env nextflow
 
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
 
-params.outdir = 'results'
+/* ############################################################################
+ * Default parameter values.
+ * ############################################################################
+ */
+
+params.email = null
 params.pubchem_identifiers = 'input/compound_additions.csv'
+params.chem_backend = 'rdkit'
+params.database = 'metanetx.sqlite'
+params.outdir = 'results'
+params.storage = 'storage'
 
-include reactions from './mnx_post_reactions'
-include compounds from './mnx_post_compounds'
+/* ############################################################################
+ * Include modules.
+ * ############################################################################
+ */
+
+include { REACTIONS } from './mnx_post_reactions'
+include { COMPOUNDS } from './mnx_post_compounds'
 
 /* ############################################################################
  * Define workflow processes.
  * ############################################################################
  */
 
-process bigg_info {
-    publishDir "${params.outdir}", mode:'link'
+process BIGG_INFO {
+    publishDir params.outdir, mode:'link'
 
     output:
     path 'bigg_info.json'
@@ -24,8 +38,8 @@ process bigg_info {
     """
 }
 
-process kegg_info {
-    publishDir "${params.outdir}", mode:'link'
+process KEGG_INFO {
+    publishDir params.outdir, mode:'link'
 
     output:
     path 'kegg_info.txt'
@@ -40,19 +54,19 @@ process kegg_info {
  * ############################################################################
  */
 
-workflow mnx_post {
+workflow MNX_POST {
     take:
     database
     pubchem_identifiers
 
     main:
-    bigg_info()
-    kegg_info()
-    reactions(database)
-    compounds(reactions.out, pubchem_identifiers)
+    BIGG_INFO()
+    KEGG_INFO()
+    REACTIONS(database)
+    COMPOUNDS(REACTIONS.out, pubchem_identifiers)
 
     emit:
-    db = compounds.out.db
+    db = COMPOUNDS.out.db
 }
 
 /* ############################################################################
@@ -67,8 +81,12 @@ workflow {
 
 metanetx-post
 =============
+E-Mail: ${params.email}
 PubChem Identifiers: ${params.pubchem_identifiers}
+Chem-Informatics Backend: ${params.chem_backend}
+SQLite Database: ${params.database}
 Results Path: ${params.outdir}
+Permanent Cache: ${params.storage}
 
 ************************************************************
 
@@ -77,5 +95,5 @@ Results Path: ${params.outdir}
     main:
     db = Channel.fromPath("${params.outdir}/${params.database}")
     pubchem_identifiers = Channel.fromPath("${params.pubchem_identifiers}", checkIfExists: true)
-    mnx_post(db, pubchem_identifiers)
+    MNX_POST(db, pubchem_identifiers)
 }

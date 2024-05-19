@@ -1,7 +1,13 @@
 #!/usr/bin/env nextflow
 
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
 
+/* ############################################################################
+ * Default parameter values.
+ * ############################################################################
+ */
+
+params.email = null
 params.database = 'metanetx.sqlite'
 params.outdir = 'results'
 params.storage = 'storage'
@@ -11,8 +17,8 @@ params.storage = 'storage'
  * ############################################################################
  */
 
-process bigg_extract {
-    storeDir "${params.storage}"
+process BIGG_EXTRACT {
+    storeDir params.storage
 
     output:
     path 'bigg_universal_reactions.json'
@@ -22,7 +28,7 @@ process bigg_extract {
     """
 }
 
-process bigg_transform {
+process BIGG_TRANSFORM {
     input:
     path universal_reactions
 
@@ -34,22 +40,24 @@ process bigg_transform {
     """
 }
 
-process bigg_load {
+process BIGG_LOAD {
     input:
     path db
     path reaction_names
 
     output:
-    path "${db.getName()}", emit: db
+    path result, emit: db
 
+    script:
+    result = db.getName()
     """
-    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
-    mnx-post reactions bigg load sqlite:///${db.getName()} ${reaction_names}
+    cp --remove-destination "\$(realpath -e ${db})" "${result}"
+    mnx-post reactions bigg load sqlite:///${result} ${reaction_names}
     """
 }
 
-process expasy_extract {
-    storeDir "${params.storage}"
+process EXPASY_EXTRACT {
+    storeDir params.storage
 
     output:
     path 'enzyme.rdf'
@@ -59,7 +67,7 @@ process expasy_extract {
     """
 }
 
-process expasy_transform {
+process EXPASY_TRANSFORM {
     input:
     path enzymes
 
@@ -72,24 +80,26 @@ process expasy_transform {
     """
 }
 
-process expasy_load {
+process EXPASY_LOAD {
     input:
     path db
     path enzyme_names
     path enzyme_replacements
 
     output:
-    path "${db.getName()}", emit: db
+    path result, emit: db
 
+    script:
+    result = db.getName()
     """
-    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
-    mnx-post reactions expasy load sqlite:///${db.getName()} \
+    cp --remove-destination "\$(realpath -e ${db})" "${result}"
+    mnx-post reactions expasy load sqlite:///${result} \
         ${enzyme_names} ${enzyme_replacements}
     """
 }
 
-process kegg_extract {
-    storeDir "${params.storage}"
+process KEGG_EXTRACT {
+    storeDir params.storage
 
     output:
     path 'kegg_reactions.json'
@@ -99,7 +109,7 @@ process kegg_extract {
     """
 }
 
-process kegg_transform {
+process KEGG_TRANSFORM {
     input:
     path reactions
 
@@ -111,21 +121,23 @@ process kegg_transform {
     """
 }
 
-process kegg_load {
+process KEGG_LOAD {
     input:
     path db
     path reaction_names
 
     output:
-    path "${db.getName()}", emit: db
+    path result, emit: db
 
+    script:
+    result = db.getName()
     """
-    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
-    mnx-post reactions kegg load sqlite:///${db.getName()} ${reaction_names}
+    cp --remove-destination "\$(realpath -e ${db})" "${result}"
+    mnx-post reactions kegg load sqlite:///${result} ${reaction_names}
     """
 }
 
-process seed_extract {
+process SEED_EXTRACT {
     storeDir "${params.storage}"
 
     output:
@@ -136,7 +148,7 @@ process seed_extract {
     """
 }
 
-process seed_transform {
+process SEED_TRANSFORM {
     input:
     path reactions
 
@@ -148,19 +160,21 @@ process seed_transform {
     """
 }
 
-process seed_load {
-    publishDir "${params.outdir}", mode:'link'
+process SEED_LOAD {
+    publishDir params.outdir, mode:'link'
 
     input:
     path db
     path reaction_names
 
     output:
-    path "${db.getName()}", emit: db
+    path result, emit: db
 
+    script:
+    result = db.getName()
     """
-    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
-    mnx-post reactions seed load sqlite:///${db.getName()} ${reaction_names}
+    cp --remove-destination "\$(realpath -e ${db})" "${result}"
+    mnx-post reactions seed load sqlite:///${result} ${reaction_names}
     """
 }
 
@@ -170,30 +184,33 @@ process seed_load {
  * ############################################################################
  */
 
-workflow reactions {
+workflow REACTIONS {
     take:
     database
 
     main:
-    bigg_extract()
-    bigg_transform(bigg_extract.out)
-    bigg_load(database, bigg_transform.out)
-    expasy_extract()
-    expasy_transform(expasy_extract.out)
-    expasy_load(
-        bigg_load.out,
-        expasy_transform.out.names,
-        expasy_transform.out.replacements
+    BIGG_EXTRACT()
+    BIGG_TRANSFORM(BIGG_EXTRACT.out)
+    BIGG_LOAD(database, BIGG_TRANSFORM.out)
+
+    EXPASY_EXTRACT()
+    EXPASY_TRANSFORM(EXPASY_EXTRACT.out)
+    EXPASY_LOAD(
+        BIGG_LOAD.out,
+        EXPASY_TRANSFORM.out.names,
+        EXPASY_TRANSFORM.out.replacements
     )
-    kegg_extract()
-    kegg_transform(kegg_extract.out)
-    kegg_load(expasy_load.out, kegg_transform.out)
-    seed_extract()
-    seed_transform(seed_extract.out)
-    seed_load(kegg_load.out, seed_transform.out)
+
+    KEGG_EXTRACT()
+    KEGG_TRANSFORM(KEGG_EXTRACT.out)
+    KEGG_LOAD(EXPASY_LOAD.out, KEGG_TRANSFORM.out)
+
+    SEED_EXTRACT()
+    SEED_TRANSFORM(SEED_EXTRACT.out)
+    SEED_LOAD(KEGG_LOAD.out, SEED_TRANSFORM.out)
 
     emit:
-    db = seed_load.out
+    db = SEED_LOAD.out
 }
 
 /* ############################################################################
@@ -218,5 +235,5 @@ Permanent Cache: ${params.storage}
 
     main:
     Channel.fromPath("${params.outdir}/${params.database}") \
-    | reactions
+    | REACTIONS
 }

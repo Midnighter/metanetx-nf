@@ -1,6 +1,11 @@
 #!/usr/bin/env nextflow
 
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
+
+/* ############################################################################
+ * Default parameter values.
+ * ############################################################################
+ */
 
 params.pubchem_identifiers = 'input/compound_additions.csv'
 params.chem_backend = 'rdkit'
@@ -13,8 +18,8 @@ params.storage = 'storage'
  * ############################################################################
  */
 
-process kegg_extract {
-    storeDir "${params.storage}"
+process KEGG_EXTRACT {
+    storeDir params.storage
 
     output:
     path 'kegg_compounds.json'
@@ -24,7 +29,7 @@ process kegg_extract {
     """
 }
 
-process kegg_transform {
+process KEGG_TRANSFORM {
     input:
     path compounds
 
@@ -36,26 +41,28 @@ process kegg_transform {
     """
 }
 
-process kegg_load {
-    publishDir "${params.outdir}", mode:'link', glob: '*.json'
+process KEGG_LOAD {
+    publishDir params.outdir, mode:'link', glob: '*.json'
 
     input:
     path db
     path inchis
 
     output:
-    path "${db.getName()}", emit: db
+    path result, emit: db
     path 'kegg_inchi_conflicts.json'
 
+    script:
+    result = db.getName()
     // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
-    mnx-post compounds kegg load sqlite:///${db.getName()} ${inchis}
+    cp --remove-destination "\$(realpath -e ${db})" "${result}"
+    mnx-post compounds kegg load sqlite:///${result} ${inchis}
     """
 }
 
-process pubchem_extract {
-    storeDir "${params.storage}"
+process PUBCHEM_EXTRACT {
+    storeDir params.storage
 
     input:
     path identifiers
@@ -69,7 +76,7 @@ process pubchem_extract {
     """
 }
 
-process pubchem_transform {
+process PUBCHEM_TRANSFORM {
     input:
     path properties
     path synonyms
@@ -82,37 +89,41 @@ process pubchem_transform {
     """
 }
 
-process pubchem_load {
-    publishDir "${params.outdir}", mode:'link', glob: '*.json'
+process PUBCHEM_LOAD {
+    publishDir params.outdir, mode:'link', glob: '*.json'
 
     input:
     path db
     path compounds
 
     output:
-    path "${db.getName()}", emit: db
+    path result, emit: db
 
+    script:
+    result = db.getName()
     // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
-    mnx-post compounds pubchem load sqlite:///${db.getName()} ${compounds}
+    cp --remove-destination "\$(realpath -e ${db})" "${result}"
+    mnx-post compounds pubchem load sqlite:///${result} ${compounds}
     """
 }
 
-process structures_etl {
-    publishDir "${params.outdir}", mode:'link'
+process STRUCTURES_ETL {
+    publishDir params.outdir, mode:'link'
 
     input:
     path db
 
     output:
-    path "${db.getName()}", emit: db
+    path result, emit: db
 
+    script:
+    result = db.getName()
     // We copy the SQLite database in order to improve the ability to resume a pipeline.
     """
-    cp --remove-destination "\$(realpath -e ${db})" "${db.getName()}"
+    cp --remove-destination "\$(realpath -e ${db})" "${result}"
     mnx-post compounds structures etl --backend=${params.chem_backend} \
-        sqlite:///${db.getName()}
+        sqlite:///${result}
     """
 }
 
@@ -122,22 +133,22 @@ process structures_etl {
  * ############################################################################
  */
 
-workflow compounds {
+workflow COMPOUNDS {
     take:
     database
     pubchem_identifiers
 
     main:
-    kegg_extract()
-    kegg_transform(kegg_extract.out)
-    kegg_load(database, kegg_transform.out)
-    pubchem_extract(pubchem_identifiers)
-    pubchem_transform(pubchem_extract.out)
-    pubchem_load(kegg_load.out.db, pubchem_transform.out)
-    structures_etl(pubchem_load.out.db)
+    KEGG_EXTRACT()
+    KEGG_TRANSFORM(KEGG_EXTRACT.out)
+    KEGG_LOAD(database, KEGG_TRANSFORM.out)
+    PUBCHEM_EXTRACT(pubchem_identifiers)
+    PUBCHEM_TRANSFORM(PUBCHEM_EXTRACT.out)
+    PUBCHEM_LOAD(KEGG_LOAD.out.db, PUBCHEM_TRANSFORM.out)
+    STRUCTURES_ETL(PUBCHEM_LOAD.out.db)
 
     emit:
-    db = structures_etl.out
+    db = STRUCTURES_ETL.out
 }
 
 /* ############################################################################
@@ -165,5 +176,5 @@ Permanent Cache: ${params.storage}
     main:
     db = Channel.fromPath("${params.outdir}/${params.database}")
     pubchem_identifiers = Channel.fromPath("${params.pubchem_identifiers}", checkIfExists: true)
-    compounds(db, pubchem_identifiers)
+    COMPOUNDS(db, pubchem_identifiers)
 }
